@@ -1,0 +1,76 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+{
+	"name": "Devcontainer Boilerplate",
+	"image": "mcr.microsoft.com/devcontainers/base:noble", // https://github.com/devcontainers/templates/tree/main/src/ubuntu
+	"remoteUser": "devcontainer",
+	// ワークスペースのマウントを明示的に指定
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"mounts": [
+		// $HOMEの永続化 (名前付きボリューム)
+		"source=devcontainer-home-${localWorkspaceFolderBasename},target=/home/devcontainer,type=volume",
+		// Claude Codeの設定を永続化・共有するためのボリューム
+		"source=claude-code-config,target=/home/devcontainer/.config/claude,type=volume"
+	],
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"postStartCommand": "bash .devcontainer/post-start.sh",
+	"postAttachCommand": "bash .devcontainer/post-attach.sh",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": true,
+			"upgradePackages": true,
+			"username": "devcontainer",
+			"userUid": "automatic",
+			"userGid": "automatic"
+		},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+			"moby": true,
+			"installDockerBuildx": true,
+			"installDockerComposeSwitch": true,
+			"version": "latest",
+			"dockerDashComposeVersion": "v2"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {
+			"installDirectlyFromGitHubRelease": true,
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/mise:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/actionlint:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/fd:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/fzf:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/ripgrep:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/shellcheck:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/shfmt:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/starship:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/tmux-apt-get:1": {},
+		"ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
+			"packages": "vim,bat"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"Anthropic.claude-code"
+			]
+		}
+	}
+}

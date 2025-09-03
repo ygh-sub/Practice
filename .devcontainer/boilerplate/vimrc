@@ -1,0 +1,21 @@
+set encoding=utf-8
+scriptencoding utf-8
+set nocompatible
+set shiftwidth=4
+set tabstop=2
+set expandtab
+set number
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+set autoindent
+syntax on
+inoremap jj <Esc>
+
+set modeline
+set foldenable
+set foldmethod=marker
+
+" Copy to clipboard
+set clipboard+=unnamed
