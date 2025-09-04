@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import mealApi from '../api/mealApi';
 
-const MealForm = ({ onSubmit }) => {
+const MealForm = ({ onSubmit, defaultDate }) => {
   const [formData, setFormData] = useState({
     name: '',
     portion: '',
     calories: '',
-    date: new Date().toISOString().split('T')[0],
+    date: defaultDate || new Date().toISOString().split('T')[0],
   });
   
   const [isEstimating, setIsEstimating] = useState(false);
   const [estimationError, setEstimationError] = useState(null);
   const [manualMode, setManualMode] = useState(false);
   const [isEstimated, setIsEstimated] = useState(false);
+
+  // Update date when defaultDate changes
+  useEffect(() => {
+    if (defaultDate) {
+      setFormData(prev => ({ ...prev, date: defaultDate }));
+    }
+  }, [defaultDate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

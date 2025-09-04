@@ -36,6 +36,8 @@ function App() {
       setError(null);
       const newMeal = await mealApi.createMeal(mealData);
       setMeals([...meals, newMeal]);
+      // Update selectedDate to the date of the new meal
+      setSelectedDate(mealData.date);
     } catch (err) {
       setError('食事の追加に失敗しました');
       console.error('Error adding meal:', err);
@@ -71,12 +73,55 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
             <div className="space-y-6">
+              {/* Date selector with navigation */}
+              <div className="bg-white rounded-lg shadow-md p-4">
+                <label htmlFor="view-date" className="block text-sm font-medium text-gray-700 mb-2">
+                  表示日付
+                </label>
+                <input
+                  type="date"
+                  id="view-date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+                />
+                
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      const yesterday = new Date(selectedDate);
+                      yesterday.setDate(yesterday.getDate() - 1);
+                      setSelectedDate(yesterday.toISOString().split('T')[0]);
+                    }}
+                    className="flex-1 px-2 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded transition"
+                  >
+                    前日
+                  </button>
+                  <button
+                    onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
+                    className="flex-1 px-2 py-1 text-sm bg-blue-500 text-white hover:bg-blue-600 rounded transition"
+                  >
+                    今日
+                  </button>
+                  <button
+                    onClick={() => {
+                      const tomorrow = new Date(selectedDate);
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      setSelectedDate(tomorrow.toISOString().split('T')[0]);
+                    }}
+                    className="flex-1 px-2 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded transition"
+                  >
+                    翌日
+                  </button>
+                </div>
+              </div>
+              
               <CaloriesSummary meals={meals} selectedDate={selectedDate} />
               <DailyComment 
                 date={selectedDate} 
                 hasMeals={meals.filter(meal => meal.date === selectedDate).length > 0}
               />
-              <MealForm onSubmit={handleAddMeal} />
+              <MealForm onSubmit={handleAddMeal} defaultDate={selectedDate} />
             </div>
           </div>
 
@@ -86,7 +131,11 @@ function App() {
                 <div className="text-gray-500">読み込み中...</div>
               </div>
             ) : (
-              <MealList meals={meals} onDelete={handleDeleteMeal} />
+              <MealList 
+                meals={meals.filter(meal => meal.date === selectedDate)} 
+                onDelete={handleDeleteMeal} 
+                selectedDate={selectedDate}
+              />
             )}
           </div>
         </div>
