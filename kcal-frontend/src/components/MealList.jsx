@@ -34,7 +34,15 @@ const MealList = ({ meals, onDelete }) => {
               >
                 <div className="flex-1">
                   <span className="font-medium text-gray-800">{meal.name}</span>
+                  {meal.portion && (
+                    <span className="ml-2 text-sm text-gray-500">({meal.portion})</span>
+                  )}
                   <span className="ml-4 text-gray-600">{meal.calories} kcal</span>
+                  {meal.is_estimated && (
+                    <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                      推定値
+                    </span>
+                  )}
                 </div>
                 
                 <button

@@ -6,3 +6,4 @@ use App\Http\Controllers\Api\MealController;
 
 Route::apiResource('meals', MealController::class);
 Route::post('meals/comment', [MealController::class, 'generateComment']);
+Route::post('meals/estimate-calories', [MealController::class, 'estimateCalories']);

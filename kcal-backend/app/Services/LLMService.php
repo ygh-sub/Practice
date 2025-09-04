@@ -26,6 +26,87 @@ class LLMService
     }
 
     /**
+     * Estimate calories for a meal
+     * 
+     * @param string $mealName The name of the meal
+     * @param string|null $portion The portion/quantity (optional)
+     * @return array The estimated calories and explanation
+     * @throws Exception
+     */
+    public function estimateCalories(string $mealName, ?string $portion = null): array
+    {
+        if (empty($this->apiKey)) {
+            throw new Exception('LLM API key is not configured');
+        }
+
+        $prompt = $this->buildCaloriesPrompt($mealName, $portion);
+
+        try {
+            $response = $this->callLLMApi($prompt);
+            $content = $this->parseResponse($response);
+            
+            // Parse the response to extract calories
+            return $this->parseCaloriesResponse($content);
+        } catch (Exception $e) {
+            Log::error('LLM API Error for calorie estimation: ' . $e->getMessage());
+            throw new Exception('Failed to estimate calories: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Build the prompt for calorie estimation
+     */
+    private function buildCaloriesPrompt(string $mealName, ?string $portion): string
+    {
+        $portionText = $portion ? "分量: {$portion}" : "通常の一人前";
+        
+        return sprintf(
+            "以下の食事のカロリーを推定してください。\n\n" .
+            "食事名: %s\n" .
+            "%s\n\n" .
+            "回答は以下のJSON形式で返してください（JSONのみ、説明文は不要）:\n" .
+            '{"calories": カロリー数値, "explanation": "簡潔な説明（50文字以内）"}' . "\n\n" .
+            "例: {\"calories\": 500, \"explanation\": \"白米茶碗1杯と焼き鮭、味噌汁の一般的な朝食\"}",
+            $mealName,
+            $portionText
+        );
+    }
+
+    /**
+     * Parse the calories estimation response
+     */
+    private function parseCaloriesResponse(string $content): array
+    {
+        // Try to extract JSON from the response
+        $pattern = '/\{[^}]*"calories"\s*:\s*(\d+)[^}]*\}/';
+        if (preg_match($pattern, $content, $matches)) {
+            $jsonStr = $matches[0];
+            $data = json_decode($jsonStr, true);
+            
+            if ($data && isset($data['calories'])) {
+                return [
+                    'calories' => (int) $data['calories'],
+                    'explanation' => $data['explanation'] ?? '推定値です'
+                ];
+            }
+        }
+
+        // Fallback: try to find a number that could be calories
+        if (preg_match('/(\d{2,4})/', $content, $matches)) {
+            return [
+                'calories' => (int) $matches[1],
+                'explanation' => '推定値です'
+            ];
+        }
+
+        // If we can't parse, return a default
+        return [
+            'calories' => 0,
+            'explanation' => 'カロリーを推定できませんでした'
+        ];
+    }
+
+    /**
      * Generate a comment for daily meals
      * 
      * @param array $meals Array of meal data for a specific date

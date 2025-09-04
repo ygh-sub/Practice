@@ -39,6 +39,11 @@ export const mealApi = {
     const response = await api.post('/meals/comment', { date });
     return response.data.data;
   },
+
+  estimateCalories: async (name, portion) => {
+    const response = await api.post('/meals/estimate-calories', { name, portion });
+    return response.data.data;
+  },
 };
 
 export default mealApi;

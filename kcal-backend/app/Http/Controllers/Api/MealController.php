@@ -36,9 +36,17 @@ class MealController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'calories' => 'required|integer|min:0',
-            'date' => 'required|date_format:Y-m-d'
+            'portion' => 'nullable|string|max:255',
+            'calories' => 'nullable|integer|min:0',
+            'date' => 'required|date_format:Y-m-d',
+            'is_estimated' => 'nullable|boolean'
         ]);
+
+        // If calories not provided, must have either portion or auto-estimate
+        if (!isset($validated['calories']) || $validated['calories'] === null) {
+            $validated['calories'] = 0; // Will be set later if estimation succeeds
+            $validated['is_estimated'] = true;
+        }
 
         $meal = Meal::create($validated);
 
@@ -116,6 +124,82 @@ class MealController extends Controller
                 ]
             ]);
         }
+    }
+
+    /**
+     * Estimate calories for a meal using LLM
+     */
+    public function estimateCalories(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'portion' => 'nullable|string|max:255'
+        ]);
+
+        $mealName = $request->input('name');
+        $portion = $request->input('portion');
+
+        try {
+            $result = $this->llmService->estimateCalories($mealName, $portion);
+            
+            return response()->json([
+                'data' => [
+                    'calories' => $result['calories'],
+                    'explanation' => $result['explanation'],
+                    'meal_name' => $mealName,
+                    'portion' => $portion,
+                    'is_estimated' => true
+                ]
+            ]);
+        } catch (Exception $e) {
+            // Return a fallback estimation based on common meals
+            $fallbackCalories = $this->getFallbackCalories($mealName);
+            
+            return response()->json([
+                'data' => [
+                    'calories' => $fallbackCalories,
+                    'explanation' => '一般的な目安値です',
+                    'meal_name' => $mealName,
+                    'portion' => $portion,
+                    'is_estimated' => true,
+                    'is_fallback' => true
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * Get fallback calories for common meals
+     */
+    private function getFallbackCalories(string $mealName): int
+    {
+        $commonMeals = [
+            '朝食' => 400,
+            '昼食' => 700,
+            '夕食' => 800,
+            'ご飯' => 250,
+            'パン' => 200,
+            'サラダ' => 150,
+            'ラーメン' => 500,
+            'カレー' => 700,
+            '定食' => 800,
+            '弁当' => 600,
+            'おにぎり' => 180,
+            'サンドイッチ' => 300,
+            'パスタ' => 600,
+            'うどん' => 350,
+            'そば' => 300,
+        ];
+
+        // Check if meal name contains any common meal
+        foreach ($commonMeals as $meal => $calories) {
+            if (mb_strpos($mealName, $meal) !== false) {
+                return $calories;
+            }
+        }
+
+        // Default estimate
+        return 500;
     }
 
     /**
