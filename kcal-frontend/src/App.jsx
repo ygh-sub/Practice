@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MealForm from './components/MealForm';
 import MealList from './components/MealList';
 import CaloriesSummary from './components/CaloriesSummary';
+import DailyComment from './components/DailyComment';
 import mealApi from './api/mealApi';
 
 function App() {
@@ -71,6 +72,10 @@ function App() {
           <div className="lg:col-span-1">
             <div className="space-y-6">
               <CaloriesSummary meals={meals} selectedDate={selectedDate} />
+              <DailyComment 
+                date={selectedDate} 
+                hasMeals={meals.filter(meal => meal.date === selectedDate).length > 0}
+              />
               <MealForm onSubmit={handleAddMeal} />
             </div>
           </div>

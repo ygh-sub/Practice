@@ -34,6 +34,11 @@ export const mealApi = {
   deleteMeal: async (id) => {
     await api.delete(`/meals/${id}`);
   },
+
+  generateComment: async (date) => {
+    const response = await api.post('/meals/comment', { date });
+    return response.data.data;
+  },
 };
 
 export default mealApi;
