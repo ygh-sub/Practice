@@ -3,5 +3,16 @@
     "type": "command",
     "command": "bunx ccusage statusline",
     "padding": 0
-  }
+  },
+  "claudeCode.instructions": [
+    "以下のルールを必ず守ること：",
+    "1. LaravelでDBを修正するとき、php artisan tinker は使用しない。",
+    "2. DB構造の変更は必ず migration ファイルを生成して対応する。",
+    "   - 例: php artisan make:migration add_column_to_users_table --table=users",
+    "3. データ修正を行う場合は、php artisan db:query など一発で完結する方法を使う。",
+    "4. 必要に応じて独自の artisan コマンドを提案しても良い。",
+    "5. 出力は無限ループを引き起こさないよう、必ず一度の実行で完結する形式にする。"
+  ]
 }
+
+

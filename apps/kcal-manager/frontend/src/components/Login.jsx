@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const isDevelopment = import.meta.env.DEV;
+  const [email, setEmail] = useState(isDevelopment ? 'demo@example.com' : '');
+  const [password, setPassword] = useState(isDevelopment ? 'demo1234' : '');
   const [isLoading, setIsLoading] = useState(false);
   const { login, error, clearError, isAuthenticated } = useAuth();
   const navigate = useNavigate();

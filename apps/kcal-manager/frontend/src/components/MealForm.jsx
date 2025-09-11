@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import mealApi from '../api/mealApi';
 
 const MealForm = ({ onSubmit, defaultDate }) => {
+  const isDevelopment = import.meta.env.DEV;
+  
   const [formData, setFormData] = useState({
-    name: '',
-    portion: '',
-    calories: '',
+    name: isDevelopment ? 'ハンバーガーセット' : '',
+    portion: isDevelopment ? '大盛り' : '',
+    calories: isDevelopment ? '850' : '',
     date: defaultDate || new Date().toISOString().split('T')[0],
   });
   
