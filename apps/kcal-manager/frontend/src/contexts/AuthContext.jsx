@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
 // axiosのデフォルト設定
@@ -50,11 +51,14 @@ export const AuthProvider = ({ children }) => {
         
         // トークンがない、または無効な場合は自動ログイン
         try {
+          console.log('Attempting auto-login with demo user...');
           await axios.get('/sanctum/csrf-cookie');
+          console.log('CSRF cookie obtained');
           const response = await axios.post('/api/login', {
             email: 'demo@example.com',
             password: 'demo1234'
           });
+          console.log('Auto-login response:', response.data);
           
           const { access_token, user } = response.data;
           setToken(access_token);
